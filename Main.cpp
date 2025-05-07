@@ -60,18 +60,33 @@ class ProductCatalog{
         std::cout << "Inventory saved to " << filename << std::endl;
     }
      
-    void loadInventoryFromFile(const std::string& filename){
-        std:: ifstream file(filename);//read from file
-        if(file.is_open()){
-            int id, stock, sold;
-            double price;
-            std::string name;
-            while(file >> id >> name >> price >> sold >> stock){//reads through everyline of file
-                products[id]={name , price, sold, stock}; //input values from files into keys
+     void loadInventoryFromFile(const std::string& filename) {
+            std::ifstream file(filename);
+            if (file.is_open()) {
+                products.clear(); // Clear existing products before loading
+                std::string line;
+                while (std::getline(file, line)) {
+                    size_t pos = 0;
+                    std::string token;
+                    std::vector<std::string> tokens;
+                    while ((pos = line.find(',')) != std::string::npos) {
+                        token = line.substr(0, pos);
+                        tokens.push_back(token);
+                        line.erase(0, pos + 1);
+                    }
+                    tokens.push_back(line);
+                    if (tokens.size() == 5) {
+                        int id = std::stoi(tokens[0]);
+                        std::string name = tokens[1];
+                        double price = std::stod(tokens[2]);
+                        int sold = std::stoi(tokens[3]);
+                        int stock = std::stoi(tokens[4]);
+                        products[id] = {name, price, stock, sold};
+                    }
+                }
+                file.close();
             }
-            file.close();
         }
-    }
     
     void displayBestSellingProducts(){
         //interate through all products, check how much sold better than avg then display those
